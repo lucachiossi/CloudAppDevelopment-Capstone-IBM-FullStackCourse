@@ -8,14 +8,14 @@ You must complete all the labs to successfully complete the project.
 ## Project Breakdown
 
 **Prework: Sign up for IBM Cloud account and create a Watson Natural language Understanding service**
-1. Create an IBM cloud account if you don't have one already.
-2. Create an instance of the Natural Language Understanding (NLU) service.
+1. Create an IBM cloud account if you don't have one already. ✓
+2. Create an instance of the Natural Language Understanding (NLU) service. ✓
 
 **Fork the project Github repository with a project then build and deploy the template project**
-1. Fork the repository in your account
-2. Clone the repository in the theia lab environment
-3. Create static pages to finish the user stories
-4. Deploy the application on IBM Cloud
+1. Fork the repository in your account ✓
+2. Clone the repository in the theia lab environment ✓
+3. Create static pages to finish the user stories ✓
+4. Deploy the application on IBM Cloud ✓
 
 **Add user management to the application**
 1. Implement user management using the Django user authentication system.
