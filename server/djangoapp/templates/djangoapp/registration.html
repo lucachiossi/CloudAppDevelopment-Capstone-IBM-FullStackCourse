@@ -14,7 +14,15 @@
     </head>
     <body>
         <H1>Sign Up</H1></br>
-        <!--Add a registration form here -->
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+
         <form>
             <div class="form-group">
                 <label for="usernameInput"><b>User Name</b></label>
