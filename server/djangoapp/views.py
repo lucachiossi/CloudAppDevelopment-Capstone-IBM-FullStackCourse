@@ -66,7 +66,46 @@ def logout_request(request):
 
 # Create a `registration_request` view to handle sign up request
 # def registration_request(request):
-# ...
+def registration_request(request):
+    context = {}
+    # If it is a GET request, just render the registration page
+    if request.method == 'GET':
+        return render(request, 'djangoapp/registration.html', context)
+    #if it is a POST request, perform registration procedures
+    elif request.method == 'POST':
+        # Get user details from request.POST dictionary
+        username = request.POST['username']
+        firstname = request.POST['firstname']
+        lastname = request.POST['lastname']
+        password1 = request.POST['psw1']
+        password2 = request.POST['psw2']
+        # Check inserted passwords match
+        if not password1 == password2:
+            messages.add_message(request, messages.WARNING, 'specified passwords not matching')
+            return render(request, 'djangoapp/registration.html', context)
+        user_exist = False
+        try:
+            # Check if user already exists
+            User.objects.get(username=username)
+            user_exist = True
+            print('user already exists {}, {}, {}'.format(\
+                    User.first_name, User.last_name, User.username))
+        except:
+            # If not confirm it is a new user
+            print('this is a new user {}!'.format(username))
+        # If it is a new user
+        if not user_exist:
+            User.objects.create_user(username=username, \
+                    first_name=firstname, \
+                    last_name=lastname, \
+                    password=password1)
+            #login(request, user)
+            messages.add_message(request, messages.SUCCESS, 'created a new user')
+            return redirect('djangoapp:index')
+        else:
+            messages.add_message(request, messages.WARNING, 'inserted username already exists')
+            return render(request, 'djangoapp/registration.html', context)
+
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
