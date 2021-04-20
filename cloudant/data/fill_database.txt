@@ -1,0 +1,2 @@
+set  environment variables IAM_API_KEY and COUCH_URLand then use the following command
+cat ./dealerships.json | couchimport --type "json" --jsonpath "dealerships.*" --database dealerships
