@@ -34,12 +34,33 @@ def get_contact(request):
 
 # Create a `login_request` view to handle sign in request
 # def login_request(request):
-# ...
+def login_request(request):
+    context = {}
+    # Handles POST request
+    if request.method == "POST":
+        # Get username and password from request.POST dictionary
+        username = request.POST['username']
+        password = request.POST['psw']
+        # Try to check if provide credential can be authenticated
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # If user is valid, call login method to login current user
+            login(request, user)
+            return redirect('djangoapp:index')
+        else:
+            # If not, notify for invalid username or password
+            messages.add_message(request, messages.WARNING, 'wrong username or password')
+            return redirect('djangoapp:index')
+    else:
+        # if not, redirect to login page
+        return redirect('djangoapp:index')
+
 
 # Create a `logout_request` view to handle sign out request
 def logout_request(request):
     print("Log out the user `{}`".format(request.user.username))
     logout(request)
+    messages.add_message(request, messages.SUCCESS, 'logged out succesfully')
     return redirect('djangoapp:index')
 
 
