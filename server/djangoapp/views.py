@@ -95,11 +95,11 @@ def registration_request(request):
             print('this is a new user {}!'.format(username))
         # If it is a new user
         if not user_exist:
-            User.objects.create_user(username=username, \
+            user = User.objects.create_user(username=username, \
                     first_name=firstname, \
                     last_name=lastname, \
                     password=password1)
-            #login(request, user)
+            login(request, user)
             messages.add_message(request, messages.SUCCESS, 'created a new user')
             return redirect('djangoapp:index')
         else:
