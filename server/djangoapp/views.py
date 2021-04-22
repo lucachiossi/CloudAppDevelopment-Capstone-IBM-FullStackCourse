@@ -2,19 +2,17 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
-# from .restapis import related methods
+from .models import CarDealer
+from .restapis import get_dealers_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
+from django.conf import settings
 from datetime import datetime
 import logging
 import json
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
-
-# Create your views here.
 
 
 # Create an `about` view to render a static about page
@@ -111,7 +109,12 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
-        return render(request, 'djangoapp/index.html', context)
+        # get url from django settings
+        url = settings.CP_API_URL + "dealership"
+        # retrieve dealerships stored on cloud
+        dealer_names = get_dealers_from_cf(url=url,state='CA')
+        # return render(request, 'djangoapp/index.html', context)
+        return HttpResponse(dealer_names)
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
