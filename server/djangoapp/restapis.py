@@ -2,6 +2,7 @@ import requests
 import json
 from .models import CarDealer
 from requests.auth import HTTPBasicAuth
+from django.conf import settings
 
 
 def get_request(url, **kwargs):
@@ -17,17 +18,19 @@ def get_request(url, **kwargs):
         the rest api
     'Content-Type' value fixed as 'application/json'
     """
-    cp_api_key = ""
+    cp_api_key = settings.CP_API_KEY
     headers = {'Content-Type': 'application/json', 'cp_api_key': cp_api_key}
+    print("get_request: url {}".format(url))
+    print("get_request: params {}".format(kwargs))
     try:
         # call get method with loaded payload
-        response = requests.get(url,headers=headers,params=kwargs)
+        response = requests.get(url=url,headers=headers,params=kwargs)
     except:
         # if any error occurs print it
         print("Network exception occurred!!!")
         return {}
     status_code = response.status_code
-    print("received response with status code {}".format(status_code))
+    print("get_request: received response with status code {}".format(status_code))
     json_data = json.loads(response.text)
     return json_data
 
@@ -42,6 +45,25 @@ def get_request(url, **kwargs):
 # def get_dealers_from_cf(url, **kwargs):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a CarDealer object list
+def get_dealers_from_cf(url, **kwargs):
+    json_data = get_request(url=url, **kwargs)
+    # print(json_data)
+    car_dealers_list = []
+    for dealership in json_data['docs']:
+        # print(dealership)
+        dealer_obj = CarDealer(
+           dealership['address'],
+           dealership['city'],
+           dealership['full_name'],
+           dealership['id'],
+           dealership['lat'],
+           dealership['long'],
+           dealership['state'],
+           dealership['st'],
+           dealership['zip']
+        )
+        car_dealers_list.append(dealer_obj)
+    return car_dealers_list
 
 
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
