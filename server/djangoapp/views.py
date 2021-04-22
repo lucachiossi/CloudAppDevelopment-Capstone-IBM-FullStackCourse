@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer
-from .restapis import get_dealers_from_cf
+from .restapis import get_dealers_from_cf, get_dealers_by_state
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.conf import settings
@@ -112,9 +112,11 @@ def get_dealerships(request):
         # get url from django settings
         url = settings.CP_API_URL + "dealership"
         # retrieve dealerships stored on cloud
-        dealer_names = get_dealers_from_cf(url=url,state='CA')
+        # dealer_names = get_dealers_from_cf(url=url)
+        dealer_names_by_state = get_dealers_by_state(url=url,state='CA')
         # return render(request, 'djangoapp/index.html', context)
-        return HttpResponse(dealer_names)
+        # return HttpResponse(dealer_names)
+        return HttpResponse(dealer_names_by_state)
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
