@@ -2,6 +2,7 @@ import requests
 import json
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
+from django.conf import settings
 
 
 def get_request(url, **kwargs):
@@ -33,7 +34,18 @@ def get_request(url, **kwargs):
             response = requests.get(url=url,headers=headers,params=kwargs)
         elif 'cp_wnlu_api_key' in kwargs:
             # WNLU service request
-            return {}
+            cp_wnlu_api_key = kwargs['cp_wnlu_api_key']
+            # prepare payload
+            params = dict()
+            params['text'] = kwargs['text']
+            params['version'] = kwargs['version']
+            params['features'] = kwargs['features']
+            params['return_analyzed_text'] = kwargs['return_analyzed_text']
+            print("WNLU request params {}".format(params))
+            # prepare header
+            headers = {'Content-Type': 'application/json'}
+            response = requests.get(url=url,headers=headers,params=kwargs,\
+                    auth=HTTPBasicAuth('apikey',cp_wnlu_api_key))
         else:
             # no service key has been specified
             print("neither cp_cl_api_key nor cp_wnlu_api_key has been specified")
@@ -83,11 +95,8 @@ def get_dealers_by_state(url,cp_cl_api_key,state):
 # Get dealer reviews from cloud
 def parse_dealer_reviews(json_data):
     dealer_reviews = []
-    print("json_data: {}".format(json_data))
     for review in json_data['docs']:
-        print("general: {}".format(review))
         if review['purchase']:
-            print("if")
             review_obj = DealerReview(
                 review['id'],
                 review['dealership'],
@@ -100,7 +109,6 @@ def parse_dealer_reviews(json_data):
                 review['car_year']
             )
         else:
-            print("else")
             review_obj = DealerReview(
                 review['id'],
                 review['dealership'],
@@ -108,16 +116,25 @@ def parse_dealer_reviews(json_data):
                 review['purchase'],
                 review['review']
             )
-        print(review_obj)
+        print("analyze_review_sentiments...")
+        review_obj.sentiment = analyze_review_sentiments(review_obj.review)
         dealer_reviews.append(review_obj)
     return dealer_reviews
+
 
 def get_dealer_reviews_from_cf(url,cp_cl_api_key,dealer_id):
     json_data = get_request(url,cp_cl_api_key=cp_cl_api_key,dealerId=dealer_id)
     return parse_dealer_reviews(json_data)
 
 
-# Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-# def analyze_review_sentiments(text):
-# - Call get_request() with specified arguments
-# - Get the returned sentiment label such as Positive or Negative
+# `analyze_review_sentiments` method to call Watson NLU and analyze text
+def analyze_review_sentiments(dealer_review):
+    json_data = get_request(
+        url=settings.WNLU_API_URL + "v1/analyze",
+        cp_wnlu_api_key=settings.WNLU_API_KEY,
+        version="2021-03-25",
+        text=dealer_review,
+        features="sentiment",
+        return_analyzed_text=True
+    )
+    return json_data['sentiment']['document']['label']
