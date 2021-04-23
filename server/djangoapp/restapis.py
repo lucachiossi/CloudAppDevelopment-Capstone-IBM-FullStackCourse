@@ -5,23 +5,24 @@ from requests.auth import HTTPBasicAuth
 from django.conf import settings
 
 
+# `get_request` to make HTTP GET requests
 def get_request(url, **kwargs):
     """
     get_request function will call request.get(url, headers, params=kwargs)
     the function is expected to work with http messages passing data in json format
 
     url: url passed as parameter
-    headers: 'Content-Type' and 'cp_api_key'
+    headers: 'Content-Type' and 'cp_cl_api_key' if Cloudant service request
     params: pairs passed as parameters (kwargs)
 
     'Content-Type' value fixed as 'application/json'
     'cp_cl_api_key' needs to be passed in the payload in order to interact with
         a Cloudant service rest api
     'cp_wnlu_api_key' needs to be passed in the payload in order to interact with
-        a WatsonNaturalLanguageUnderstandin service 
+        a WatsonNaturalLanguageUnderstandin service
     """
-    print("get_request: received kwargs {}".format(kwargs))
-    print("get_request: received url {}".format(url))
+    # print("get_request: received kwargs {}".format(kwargs))
+    # print("get_request: received url {}".format(url))
     try:
         if 'cp_cl_api_key' in kwargs:
             # Cloudant service rest api request
@@ -30,7 +31,7 @@ def get_request(url, **kwargs):
             del kwargs['cp_cl_api_key']
             # prepare header
             headers = {'Content-Type': 'application/json', 'cp_api_key': cp_cl_api_key}
-            # call get method 
+            # call get method
             response = requests.get(url=url,headers=headers,params=kwargs)
         elif 'cp_wnlu_api_key' in kwargs:
             # WNLU service request
@@ -41,7 +42,6 @@ def get_request(url, **kwargs):
             params['version'] = kwargs['version']
             params['features'] = kwargs['features']
             params['return_analyzed_text'] = kwargs['return_analyzed_text']
-            print("WNLU request params {}".format(params))
             # prepare header
             headers = {'Content-Type': 'application/json'}
             response = requests.get(url=url,headers=headers,params=kwargs,\
@@ -52,7 +52,7 @@ def get_request(url, **kwargs):
             return {}
     except:
         # if any error occurs print it
-        print("Network exception occurred!!!")
+        print("Network exception occurred with GET request!!!")
         return {}
     status_code = response.status_code
     print("get_request: received response with status code {}".format(status_code))
@@ -60,8 +60,38 @@ def get_request(url, **kwargs):
     return json_data
 
 
-# Create a `post_request` to make HTTP POST requests
-# e.g., response = requests.post(url, params=kwargs, json=payload)
+# `post_request` to make HTTP POST requests
+def post_request(url, json_payload, **kwargs):
+    """
+    post_request function is used to send a POST request in order to interact
+    with remote services through rest apis
+
+    url: url to the remote service
+    json_payload: json object containing remote service input parameters
+    kwargs: additional parameters to be scpecified such as 'cp_cl_api_key'
+        to authenticate
+    """
+    try:
+        if 'cp_cl_api_key' in kwargs:
+            # prepare url to send a post request
+            url = url + "/post"
+            # prepare headers
+            headers = {'Content-Type': 'application/json', 'cp_api_key': kwargs['cp_cl_api_key']}
+            # send request
+            print(json_payload)
+            response = requests.post(url=url, headers=headers, json=json_payload)
+        else:
+            # no service key has been specified
+            print("no cp_cl_api_key has been specified")
+            return {}
+    except:
+        # if any error occurs print it
+        print("Network exception occurred with POST request!!!")
+        return {}
+    status_code = response.status_code
+    print("post_request: received response with status code {}".format(status_code))
+    json_data = json.loads(response.text)
+    return json_data
 
 
 # Get dealers from cloud
@@ -116,7 +146,7 @@ def parse_dealer_reviews(json_data):
                 review['purchase'],
                 review['review']
             )
-        print("analyze_review_sentiments...")
+        print("analyzing review sentiments...")
         review_obj.sentiment = analyze_review_sentiments(review_obj.review)
         dealer_reviews.append(review_obj)
     return dealer_reviews
