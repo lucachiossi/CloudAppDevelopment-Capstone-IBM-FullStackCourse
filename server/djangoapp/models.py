@@ -120,9 +120,9 @@ class DealerReview:
         self.sentiment = sentiment
     def __str__(self):
         return "Reviewer name: " + self.name + \
-                ", Dealership: " + self.dealership + \
+                ", Dealership: " + str(self.dealership) + \
                 ", Review: " + self.review + \
-                ", Purchase: " + self.purchase + \
-                ", Sentiment: " + self.sentiment + \
-                ", Car Make: " + self.car_make + \
-                ", Car Model: " + self.car_model
+                ", Purchase: " + str(self.purchase) + \
+                ", Sentiment: " + str(self.sentiment) + \
+                ", Car Make: " + str(self.car_make) + \
+                ", Car Model: " + str(self.car_model)
