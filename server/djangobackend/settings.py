@@ -20,6 +20,8 @@ load_dotenv(dotenv_path=env_path)
 
 CP_API_KEY = os.getenv("CP_API_KEY")
 CP_API_URL = os.getenv("CP_API_URL")
+WNLU_API_KEY = os.getenv("WNLU_API_KEY")
+WNLU_API_URL = os.getenv("WNLU_API_URL")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
