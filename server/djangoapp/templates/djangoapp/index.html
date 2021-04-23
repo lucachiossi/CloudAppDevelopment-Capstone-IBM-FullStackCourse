@@ -52,8 +52,30 @@
         {% endif %}
 
         <!-- dealer table -->
-
-
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Dealer Name</th>
+                    <th scope="col">City</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Zip</th>
+                    <th scope="col">State</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealership in dealership_list %}
+                <tr>
+                    <th scope="row">{{ dealership.id }}</th>
+                    <td><a href="{% url 'djangoapp:dealer_details' dealership.id %}">{{ dealership.full_name }}</a></td>
+                    <td>{{ dealership.city }}</td>
+                    <td>{{ dealership.address }}</td>
+                    <td>{{ dealership.zip }}</td>
+                    <td>{{ dealership.st }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </body>
 
 </html>

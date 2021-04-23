@@ -111,10 +111,12 @@ def get_dealerships(request):
         url = settings.CP_API_URL + "dealership"
         cp_cl_api_key = settings.CP_API_KEY
         # retrieve dealerships stored on cloud
-        # dealer_names = get_dealers_from_cf(url=url,cp_cl_api_key=cp_cl_api_key)
-        dealer_names = get_dealers_by_state(url=url,cp_cl_api_key=cp_cl_api_key,state='CA')
-        # return render(request, 'djangoapp/index.html', context)
-        return HttpResponse(dealer_names)
+        dealership_list = get_dealers_from_cf(url=url,cp_cl_api_key=cp_cl_api_key)
+        # dealership_list = get_dealers_by_state(url=url,cp_cl_api_key=cp_cl_api_key,state='CA')
+        print(dealership_list)
+        context['dealership_list'] = dealership_list
+        return render(request, 'djangoapp/index.html', context)
+        # return HttpResponse(context['dealership_list'])
 
 
 # `get_dealer_details` view to render the reviews of a dealer
