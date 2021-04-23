@@ -2,7 +2,6 @@ import requests
 import json
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
-from django.conf import settings
 
 
 def get_request(url, **kwargs):
@@ -14,17 +13,31 @@ def get_request(url, **kwargs):
     headers: 'Content-Type' and 'cp_api_key'
     params: pairs passed as parameters (kwargs)
 
-    'cp_api_key' needs the environment variable $CP_API_KEY defined with valid key to access
-        the rest api
     'Content-Type' value fixed as 'application/json'
+    'cp_cl_api_key' needs to be passed in the payload in order to interact with
+        a Cloudant service rest api
+    'cp_wnlu_api_key' needs to be passed in the payload in order to interact with
+        a WatsonNaturalLanguageUnderstandin service 
     """
-    cp_api_key = settings.CP_API_KEY
-    headers = {'Content-Type': 'application/json', 'cp_api_key': cp_api_key}
-    print("get_request: url {}".format(url))
-    print("get_request: params {}".format(kwargs))
+    print("get_request: received kwargs {}".format(kwargs))
+    print("get_request: received url {}".format(url))
     try:
-        # call get method with loaded payload
-        response = requests.get(url=url,headers=headers,params=kwargs)
+        if 'cp_cl_api_key' in kwargs:
+            # Cloudant service rest api request
+            cp_cl_api_key = kwargs['cp_cl_api_key']
+            # prepare payload
+            del kwargs['cp_cl_api_key']
+            # prepare header
+            headers = {'Content-Type': 'application/json', 'cp_api_key': cp_cl_api_key}
+            # call get method 
+            response = requests.get(url=url,headers=headers,params=kwargs)
+        elif 'cp_wnlu_api_key' in kwargs:
+            # WNLU service request
+            return {}
+        else:
+            # no service key has been specified
+            print("neither cp_cl_api_key nor cp_wnlu_api_key has been specified")
+            return {}
     except:
         # if any error occurs print it
         print("Network exception occurred!!!")
@@ -58,12 +71,12 @@ def parse_dealers(json_data):
     return car_dealers_list
 
 
-def get_dealers_from_cf(url):
-    json_data = get_request(url=url)
+def get_dealers_from_cf(url,cp_cl_api_key):
+    json_data = get_request(url=url,cp_cl_api_key=cp_cl_api_key)
     return parse_dealers(json_data)
 
-def get_dealers_by_state(url,state):
-    json_data = get_request(url,state=state)
+def get_dealers_by_state(url,cp_cl_api_key,state):
+    json_data = get_request(url,cp_cl_api_key=cp_cl_api_key,state=state)
     return parse_dealers(json_data)
 
 
@@ -99,8 +112,8 @@ def parse_dealer_reviews(json_data):
         dealer_reviews.append(review_obj)
     return dealer_reviews
 
-def get_dealer_reviews_from_cf(url,dealer_id):
-    json_data = get_request(url,dealerId=dealer_id)
+def get_dealer_reviews_from_cf(url,cp_cl_api_key,dealer_id):
+    json_data = get_request(url,cp_cl_api_key=cp_cl_api_key,dealerId=dealer_id)
     return parse_dealer_reviews(json_data)
 
 
