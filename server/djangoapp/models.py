@@ -96,8 +96,8 @@ class CarDealer:
 # Dealer Review class
 class DealerReview:
     def __init__(self, id_review, dealership, name, \
-            purchase, review, purchase_date, car_make, \
-            car_model, year, sentiment=None):
+            purchase, review, purchase_date=None, car_make=None, \
+            car_model=None, car_year=None, sentiment=None):
         # Review id
         self.id = id_review
         # Dealership id
@@ -115,13 +115,14 @@ class DealerReview:
         # Car Model
         self.car_model = car_model
         # Car Year
-        self.car_year = year
+        self.car_year = car_year
         # Reviewer sentiment
         self.sentiment = sentiment
     def __str__(self):
         return "Reviewer name: " + self.name + \
                 ", Dealership: " + self.dealership + \
                 ", Review: " + self.review + \
+                ", Purchase: " + self.purchase + \
                 ", Sentiment: " + self.sentiment + \
                 ", Car Make: " + self.car_make + \
                 ", Car Model: " + self.car_model
