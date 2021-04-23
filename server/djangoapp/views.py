@@ -146,7 +146,7 @@ def add_review(request):
     review['dealership'] = 150
     review['review'] = 'very good dealership, recommendable'
     review['purchase'] = True
-    review['purchase_date'] = "02/16/2021"
+    review['purchase_date'] = datetime.utcnow().isoformat() #TODO: format date
     review['car_make'] = 'Ferrari'
     review['car_model'] = 'F2020'
     review['car_year'] = 2020
