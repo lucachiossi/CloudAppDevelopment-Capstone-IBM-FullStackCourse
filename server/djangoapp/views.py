@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer, DealerReview
-from .restapis import get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.conf import settings
@@ -69,7 +69,7 @@ def registration_request(request):
         return render(request, 'djangoapp/registration.html', context)
     #if it is a POST request, perform registration procedures
     elif request.method == 'POST':
-        # Get user details from request.POST dictionary
+    # Get user details from request.POST dictionary
         username = request.POST['username']
         firstname = request.POST['firstname']
         lastname = request.POST['lastname']
@@ -121,7 +121,7 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
-        # get url from django settings
+        # get url and key from django settings
         url = settings.CP_API_URL + "review"
         cp_cl_api_key = settings.CP_API_KEY
         # retrieve dealership review stored on cloud
@@ -129,6 +129,29 @@ def get_dealer_details(request, dealer_id):
         return HttpResponse(dealer_reviews)
 
 
-# Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+# `add_review` view to submit a review
+def add_review(request):
+    context = {}
+    # check if user is authenticated
+    sessionid = request.COOKIES.get('sessionid')
+    if sessionid is None:
+        return HttpResponse("Not Authorized")
+    # get url and key from django settings
+    url = settings.CP_API_URL + "review"
+    cp_cl_api_key = settings.CP_API_KEY
+    # prepare json_payload to post TODO: handle POST request
+    review = dict()
+    review['id'] = 100
+    review['name'] = 'Luca K'
+    review['dealership'] = 150
+    review['review'] = 'very good dealership, recommendable'
+    review['purchase'] = True
+    review['purchase_date'] = "02/16/2021"
+    review['car_make'] = 'Ferrari'
+    review['car_model'] = 'F2020'
+    review['car_year'] = 2020
+    json_payload=dict()
+    json_payload['review']= review
+    post_response = post_request(url=url,json_payload=json_payload,cp_cl_api_key=cp_cl_api_key)
+    print("views post response: {}".format(post_response))
+    return HttpResponse(post_response)
