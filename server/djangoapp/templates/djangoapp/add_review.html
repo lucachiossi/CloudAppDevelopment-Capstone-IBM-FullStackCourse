@@ -18,7 +18,7 @@
         </div>
         {% endfor %}
         {% endif %}
-    
+
         <H1>Add a review about {{ dealer_name }}</H1></br>
 
         <form action='{% url 'djangoapp:add_review' dealer_id %}' method='POST'>
@@ -28,11 +28,29 @@
                 <textarea class="form-control" id="reviewInput" placeholder="insert here" name="review" row="3"></textarea>
             </div>
             <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="purchaseInput">
-                <label for="purchaseInput" class="form-check-label"><b>Has purchased the car from ... ?</b></label>
-                <small id="purchasedMessage" class="form-text text-muted">(select purchased car information below)</small>
+                <input type="checkbox" class="form-check-input" id="purchaseInput" name="purchase">
+                <label for="purchaseInput" class="form-check-label"><b>Has purchased the car from {{ dealer_name}}?</b></label>
+                <small id="purchasedMessage" class="form-text text-muted">(select purchased car information below if checked)</small>
+            </div>
+            <div class="form-group">
+                <label for="carInformationInput" class="form-label"><b>Select your car (model-make-year):</b></label><select class="form-select" id="carInformationInput" name="carInformation">
+                    {% for car in cars %}
+                    <option selected value={{ car.name }}-{{ car.make.name }}-{{ car.year }}</option>
+                    {% endfor %}</select>
+            </div>
+            <div class="form-group">
+                <label for="dateInput" class="form-label"><b>Select your purchase date:</b></label>
+                <input type="text" class="date-own form-control" id=dateInput name="date" placeholder="mm/dd/yyyy">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </body>
+    <script type="text/javascript">
+        // Date Format
+        $('.date-own').datepicker({
+            format: 'mm/dd/yyyy',
+            todayHighlight: 'true',
+            todayBtn: 'linked'
+        });
+    </script>
 </html>
