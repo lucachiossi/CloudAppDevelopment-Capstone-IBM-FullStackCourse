@@ -123,6 +123,13 @@ def get_dealers_by_state(url,cp_cl_api_key,state):
     json_data = get_request(url,cp_cl_api_key=cp_cl_api_key,state=state)
     return parse_dealers(json_data)
 
+def get_dealer_by_id(url,cp_cl_api_key,dealer_id):
+    json_data = get_request(url,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
+    dealer = parse_dealers(json_data)
+    if len(dealer) != 1:
+        return None
+    return dealer[0]
+
 
 # Get dealer reviews from cloud
 def parse_dealer_reviews(json_data):
