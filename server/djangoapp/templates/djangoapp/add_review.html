@@ -11,8 +11,6 @@
 
     </head>
     <body>
-        <H1>Add a review about ...</H1></br>
-
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}" role="alert">
@@ -20,6 +18,8 @@
         </div>
         {% endfor %}
         {% endif %}
+    
+        <H1>Add a review about {{ dealer_name }}</H1></br>
 
         <form action='{% url 'djangoapp:add_review' dealer_id %}' method='POST'>
             {% csrf_token %}
