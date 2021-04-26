@@ -60,9 +60,9 @@ class CarModel(models.Model):
     def __str__(self):
         return "Car Model: " + self.Name + \
                 ", Type: " + self.Type + \
-                ", Year: " +self.Year + \
-                ", DealerId: " + self.DealerId + \
-                ", Car Make < " + self.CarMake + " >"
+                ", Year: " + str(self.Year) + \
+                ", DealerId: " + str(self.DealerId) + \
+                ", Car Make: <" + str(self.CarMake) + " >"
 
 
 # Car Dealer class
