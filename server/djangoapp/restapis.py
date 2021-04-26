@@ -42,6 +42,8 @@ def get_request(url, **kwargs):
             params['version'] = kwargs['version']
             params['features'] = kwargs['features']
             params['return_analyzed_text'] = kwargs['return_analyzed_text']
+            if 'language' in kwargs:
+                params['language'] = kwargs['language']
             # prepare header
             headers = {'Content-Type': 'application/json'}
             response = requests.get(url=url,headers=headers,params=kwargs,\
@@ -165,6 +167,8 @@ def analyze_review_sentiments(dealer_review):
         version="2021-03-25",
         text=dealer_review,
         features="sentiment",
-        return_analyzed_text=True
+        return_analyzed_text=True,
+        # language to be specified in order to deal with short reviews
+        language='en'
     )
     return json_data['sentiment']['document']['label']
