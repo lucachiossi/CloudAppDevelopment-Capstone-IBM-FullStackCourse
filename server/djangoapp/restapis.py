@@ -99,6 +99,8 @@ def post_request(url, json_payload, **kwargs):
 # Get dealers from cloud
 def parse_dealers(json_data):
     car_dealers_list = []
+    if not 'docs' in json_data:
+        return car_dealers_list
     for dealership in json_data['docs']:
         dealer_obj = CarDealer(
            dealership['address'],
@@ -134,6 +136,8 @@ def get_dealer_by_id(url,cp_cl_api_key,dealer_id):
 # Get dealer reviews from cloud
 def parse_dealer_reviews(json_data):
     dealer_reviews = []
+    if not 'docs' in json_data:
+        return dealer_reviews
     for review in json_data['docs']:
         if review['purchase']:
             review_obj = DealerReview(
