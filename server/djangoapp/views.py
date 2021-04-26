@@ -125,7 +125,11 @@ def get_dealer_details(request, dealer_id):
         cp_cl_api_key = settings.CP_API_KEY
         # retrieve dealership review stored on cloud
         dealer_reviews = get_dealer_reviews_from_cf(url=url,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
-        return HttpResponse(dealer_reviews)
+        context['dealer_reviews'] = dealer_reviews
+        # get dealer name
+        dealer_name = ""
+        context['dealer_name'] = dealer_name
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 
 # `add_review` view to submit a review
@@ -142,8 +146,8 @@ def add_review(request):
     review = dict()
     review['id'] = 100
     review['name'] = 'Luca K'
-    review['dealership'] = 150
-    review['review'] = 'very good dealership, recommendable'
+    review['dealership'] = 15
+    review['review'] = 'very bad dealership, avoid!'
     review['purchase'] = True
     review['purchase_date'] = datetime.utcnow().isoformat() #TODO: format date
     review['car_make'] = 'Ferrari'
