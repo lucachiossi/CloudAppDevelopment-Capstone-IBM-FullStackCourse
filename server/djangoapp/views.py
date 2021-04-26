@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import CarDealer, DealerReview
+from .models import CarDealer, DealerReview, CarMake, CarModel
 from .restapis import get_dealers_from_cf, get_dealers_by_state, get_dealer_by_id, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -174,6 +174,10 @@ def add_review(request, dealer_id):
                     'Dealer does not exist, try again later...')
             return redirect('djangoapp:index')
         context['dealer_name'] = dealer_by_id.full_name
+        # get dealer cars
+        cars = CarModel.objects.filter()
+        # TODO: check at least one car exists or return error
+        context['cars'] = []
         return render(request, 'djangoapp/add_review.html', context)
     # if POST request post new review
     # elif request.method == "POST":
