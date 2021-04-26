@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer, DealerReview
-from .restapis import get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
+from .restapis import get_dealers_from_cf, get_dealers_by_state, get_dealer_by_id, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.conf import settings
@@ -121,40 +121,56 @@ def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
         # get url and key from django settings
-        url = settings.CP_API_URL + "review"
+        url_review = settings.CP_API_URL + "review"
+        url_dealer = settings.CP_API_URL + "dealership"
         cp_cl_api_key = settings.CP_API_KEY
         # retrieve dealership review stored on cloud
-        dealer_reviews = get_dealer_reviews_from_cf(url=url,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
+        dealer_reviews = get_dealer_reviews_from_cf(url=url_review,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
         context['dealer_reviews'] = dealer_reviews
         # get dealer name
-        dealer_name = ""
-        context['dealer_name'] = dealer_name
+        dealer_by_id = get_dealer_by_id(url=url_dealer,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
+        if dealer_by_id is None:
+            context['dealer_name'] = "Unknown"
+        else:
+            context['dealer_name'] = dealer_by_id.full_name
+        # forward dealer id
+        context['dealer_id'] = dealer_id
         return render(request, 'djangoapp/dealer_details.html', context)
 
 
 # `add_review` view to submit a review
-def add_review(request):
+def add_review(request, dealer_id):
     context = {}
+    context['dealer_id'] = dealer_id
     # check if user is authenticated
     sessionid = request.COOKIES.get('sessionid')
     if sessionid is None:
         return HttpResponse("Not Authorized")
-    # get url and key from django settings
-    url = settings.CP_API_URL + "review"
-    cp_cl_api_key = settings.CP_API_KEY
-    # prepare json_payload to post TODO: handle POST request
-    review = dict()
-    review['id'] = 100
-    review['name'] = 'Luca K'
-    review['dealership'] = 15
-    review['review'] = 'very bad dealership, avoid!'
-    review['purchase'] = True
-    review['purchase_date'] = datetime.utcnow().isoformat() #TODO: format date
-    review['car_make'] = 'Ferrari'
-    review['car_model'] = 'F2020'
-    review['car_year'] = 2020
-    json_payload=dict()
-    json_payload['review']= review
-    post_response = post_request(url=url,json_payload=json_payload,cp_cl_api_key=cp_cl_api_key)
-    print("views post response: {}".format(post_response))
-    return HttpResponse(post_response)
+    # if GET request render submission form
+    if request.method == "GET":
+        return render(request, 'djangoapp/add_review.html', context)
+    # if POST request post new review
+    elif request.method == "POST":
+        # get url and key from django settings
+        url = settings.CP_API_URL + "review"
+        cp_cl_api_key = settings.CP_API_KEY
+        # prepare json_payload to post TODO: handle POST request
+        review = dict()
+        # if everything goes ok
+        messages.add_message(request, messages.SUCCESS, 'review succesfully posted')
+        return redirect('djangoapp:index')
+
+    # review['id'] = 100
+    # review['name'] = 'Luca K'
+    # review['dealership'] = 15
+    # review['review'] = 'very bad dealership, avoid!'
+    # review['purchase'] = True
+    # review['purchase_date'] = datetime.utcnow().isoformat() #TODO: format date
+    # review['car_make'] = 'Ferrari'
+    # review['car_model'] = 'F2020'
+    # review['car_year'] = 2020
+    # json_payload=dict()
+    # json_payload['review']= review
+    # post_response = post_request(url=url,json_payload=json_payload,cp_cl_api_key=cp_cl_api_key)
+    # print("views post response: {}".format(post_response))
+    # return HttpResponse(post_response)

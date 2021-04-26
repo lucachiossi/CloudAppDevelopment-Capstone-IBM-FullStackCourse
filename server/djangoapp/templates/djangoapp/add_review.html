@@ -21,7 +21,7 @@
         {% endfor %}
         {% endif %}
 
-        <form action='{% url 'djangoapp:add_review' %}' method='POST'>
+        <form action='{% url 'djangoapp:add_review' dealer_id %}' method='POST'>
             {% csrf_token %}
             <div class="form-group">
                 <label for="reviewInput" class="form-label"><b>Enter the review content:</b></label>
