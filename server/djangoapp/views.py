@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer, DealerReview
@@ -124,15 +124,26 @@ def get_dealer_details(request, dealer_id):
         url_review = settings.CP_API_URL + "review"
         url_dealer = settings.CP_API_URL + "dealership"
         cp_cl_api_key = settings.CP_API_KEY
-        # retrieve dealership review stored on cloud
-        dealer_reviews = get_dealer_reviews_from_cf(url=url_review,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
-        context['dealer_reviews'] = dealer_reviews
-        # get dealer name
-        dealer_by_id = get_dealer_by_id(url=url_dealer,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
+        # get dealer details
+        dealer_by_id = get_dealer_by_id(
+            url=url_dealer,
+            cp_cl_api_key=cp_cl_api_key,
+            dealer_id=dealer_id
+        )
         if dealer_by_id is None:
-            context['dealer_name'] = "Unknown"
+            # if dealer not on remote server cannot redirect to index with message
+            messages.add_message(request, messages.WARNING, \
+                    'Dealer does not exist, try again later...')
+            return redirect('djangoapp:index')
         else:
             context['dealer_name'] = dealer_by_id.full_name
+        # retrieve dealership review stored on cloud
+        dealer_reviews = get_dealer_reviews_from_cf(
+            url=url_review,
+            cp_cl_api_key=cp_cl_api_key,
+            dealer_id=dealer_id
+        )
+        context['dealer_reviews'] = dealer_reviews
         # forward dealer id
         context['dealer_id'] = dealer_id
         return render(request, 'djangoapp/dealer_details.html', context)
@@ -145,16 +156,22 @@ def add_review(request, dealer_id):
     # check if user is authenticated
     sessionid = request.COOKIES.get('sessionid')
     if sessionid is None:
-        return HttpResponse("Not Authorized")
+        return HttpResponseForbidden("Not Authorized: please login to post reviews")
+    # get url and key from django settings
+    url_review = settings.CP_API_URL + "review"
+    url_dealer = settings.CP_API_URL + "dealership"
+    cp_cl_api_key = settings.CP_API_KEY
     # if GET request render submission form
     if request.method == "GET":
+        # get dealer information
+        dealer_by_id = get_dealer_by_id(url=url_dealer,cp_cl_api_key=cp_cl_api_key,dealer_id=dealer_id)
+        # if dealer_by_id is None:
+        # else:
+        #     context['dealer_name'] = dealer_by_id.full_name
         return render(request, 'djangoapp/add_review.html', context)
     # if POST request post new review
     elif request.method == "POST":
-        # get url and key from django settings
-        url = settings.CP_API_URL + "review"
-        cp_cl_api_key = settings.CP_API_KEY
-        # prepare json_payload to post TODO: handle POST request
+                # prepare json_payload to post TODO: handle POST request
         review = dict()
         # if everything goes ok
         messages.add_message(request, messages.SUCCESS, 'review succesfully posted')
