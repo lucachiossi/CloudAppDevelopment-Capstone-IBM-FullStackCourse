@@ -180,26 +180,44 @@ def add_review(request, dealer_id):
             messages.add_message(request, messages.WARNING, \
                     'The dealer does not sell any car!')
         context['cars'] = cars
+        # render submission form
         return render(request, 'djangoapp/add_review.html', context)
-    # if POST request post new review
-    # elif request.method == "POST":
-    #             # prepare json_payload to post TODO: handle POST request
-    #     review = dict()
-    #     # if everything goes ok
-    #     messages.add_message(request, messages.SUCCESS, 'review succesfully posted')
+    # if POST request submit new review
+    elif request.method == "POST":
+        # get user information
+        user = User.objects.get(username=request.user)
+        # prepare json_payload to post
+        review = dict()
+        review['id'] = user.pk
+        review['name'] = user.first_name + " " + user.last_name
+        review['dealership'] = dealer_id
+        review['review'] = request.POST['review']
+        if review['review'] == "":
+            # check review is not empty
+            messages.add_message(request, messages.WARNING, \
+                    'review not posted: empty reviews are not accepted')
+            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+        if 'purchase' in request.POST:
+            # payload if uer purchased a car
+            review['purchase'] = True
+            review['purchase_date'] = request.POST['date']
+            car_id = request.POST['carInformation']
+            purchased_car = CarModel.objects.get(pk=car_id)
+            review['car_make'] = purchased_car.CarMake.Name
+            review['car_model'] = purchased_car.Name
+            review['car_year'] = purchased_car.Year.strftime("%Y")
+        else:
+            # payload if user did not purchase a car
+            review['purchase'] = False
+        json_payload=dict()
+        json_payload['review']= review
+        print("json_payload: {}".format(json_payload))
+        # post review on remote service
+        # if server error?
+        # if everything goes ok
+        messages.add_message(request, messages.SUCCESS, 'review posted succesully')
         return redirect('djangoapp:index')
 
-    # review['id'] = 100
-    # review['name'] = 'Luca K'
-    # review['dealership'] = 15
-    # review['review'] = 'very bad dealership, avoid!'
-    # review['purchase'] = True
-    # review['purchase_date'] = datetime.utcnow().isoformat() #TODO: format date
-    # review['car_make'] = 'Ferrari'
-    # review['car_model'] = 'F2020'
-    # review['car_year'] = 2020
-    # json_payload=dict()
-    # json_payload['review']= review
     # post_response = post_request(url=url,json_payload=json_payload,cp_cl_api_key=cp_cl_api_key)
     # print("views post response: {}".format(post_response))
     # return HttpResponse(post_response)
