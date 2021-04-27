@@ -213,11 +213,18 @@ def add_review(request, dealer_id):
         json_payload['review']= review
         print("json_payload: {}".format(json_payload))
         # post review on remote service
-        # if server error?
-        # if everything goes ok
-        messages.add_message(request, messages.SUCCESS, 'review posted succesully')
-        return redirect('djangoapp:index')
-
-    # post_response = post_request(url=url,json_payload=json_payload,cp_cl_api_key=cp_cl_api_key)
-    # print("views post response: {}".format(post_response))
-    # return HttpResponse(post_response)
+        post_response = post_request(
+            url=url_review,
+            json_payload=json_payload,
+            cp_cl_api_key=cp_cl_api_key
+        )
+        print("post_response: {}".format(post_response))
+        try:
+            if post_response['ok']:
+                # if post submission succesfull
+                messages.add_message(request, messages.SUCCESS, \
+                        'the review has been posted succesully')
+                return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+        except:
+            print("post failed")
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
