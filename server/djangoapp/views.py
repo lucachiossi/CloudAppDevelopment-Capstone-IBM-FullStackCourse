@@ -175,9 +175,11 @@ def add_review(request, dealer_id):
             return redirect('djangoapp:index')
         context['dealer_name'] = dealer_by_id.full_name
         # get dealer cars
-        cars = CarModel.objects.filter()
-        # TODO: check at least one car exists or return error
-        context['cars'] = []
+        cars = CarModel.objects.filter(DealerId=dealer_id)
+        if len(cars) == 0:
+            messages.add_message(request, messages.WARNING, \
+                    'The dealer does not sell any car!')
+        context['cars'] = cars
         return render(request, 'djangoapp/add_review.html', context)
     # if POST request post new review
     # elif request.method == "POST":
