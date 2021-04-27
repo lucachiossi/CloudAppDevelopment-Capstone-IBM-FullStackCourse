@@ -195,17 +195,29 @@ def add_review(request, dealer_id):
         if review['review'] == "":
             # check review is not empty
             messages.add_message(request, messages.WARNING, \
-                    'review not posted: empty reviews are not accepted')
+                    'Review not posted: empty reviews are not accepted')
             return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         if 'purchase' in request.POST:
             # payload if uer purchased a car
             review['purchase'] = True
             review['purchase_date'] = request.POST['date']
-            car_id = request.POST['carInformation']
-            purchased_car = CarModel.objects.get(pk=car_id)
-            review['car_make'] = purchased_car.CarMake.Name
-            review['car_model'] = purchased_car.Name
-            review['car_year'] = purchased_car.Year.strftime("%Y")
+            if review['purchase_date'] == "":
+                # check a date has been selected
+                messages.add_message(request, messages.WARNING, \
+                    'Review not posted: please insert purchase date')
+                return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+            try:
+                # dealer must sell cars in order to leave a review for a purchase
+                car_id = request.POST['carInformation']
+                purchased_car = CarModel.objects.get(pk=car_id)
+                review['car_make'] = purchased_car.CarMake.Name
+                review['car_model'] = purchased_car.Name
+                review['car_year'] = purchased_car.Year.strftime("%Y")
+            except:
+                messages.add_message(request, messages.WARNING, \
+                    'Review not posted: dealer sells no car, cannot post \
+                    reviews for purchases')
+                return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         else:
             # payload if user did not purchase a car
             review['purchase'] = False
@@ -223,8 +235,11 @@ def add_review(request, dealer_id):
             if post_response['ok']:
                 # if post submission succesfull
                 messages.add_message(request, messages.SUCCESS, \
-                        'the review has been posted succesully')
+                        'Review has been posted succesully')
                 return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         except:
             print("post failed")
+        messages.add_message(request, messages.WARNING, \
+                'Review not posted: something wrong happened while \
+                sending the post request to the server')
         return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
