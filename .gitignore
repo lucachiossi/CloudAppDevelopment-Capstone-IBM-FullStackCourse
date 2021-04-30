@@ -141,3 +141,5 @@ server/djangoapp/migrations/
 *.pyc
 server/djangoapp/migrations/
 
+# Ignore development files
+kompose_reference/
