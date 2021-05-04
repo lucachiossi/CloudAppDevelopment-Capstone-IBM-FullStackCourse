@@ -22,6 +22,7 @@ CP_API_KEY = os.getenv("CP_API_KEY")
 CP_API_URL = os.getenv("CP_API_URL")
 WNLU_API_KEY = os.getenv("WNLU_API_KEY")
 WNLU_API_URL = os.getenv("WNLU_API_URL")
+MINIKUBE_IP = os.getenv("MINIKUBE_IP")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,7 +42,8 @@ ALLOWED_HOSTS = [
     "0.0.0.0",
     "localhost",
     "cplc.eu-gb.mybluemix.net",
-    "127.0.0.1"
+    "127.0.0.1",
+    MINIKUBE_IP
     ]
 
 
