@@ -9,6 +9,7 @@ to cluster configurations
 
 -> 0) GENERATE config-map and secrets
 kubectl create cm web-config --from-file=.env
+!!! check it has been imported properly, kubectl edit cm web-config !!!
 
 -> 1) APPLY yaml files:
 kubectl apply -f nginx-service.yaml,web-service.yaml,nginx-deployment.yaml,web-deployment.yaml
